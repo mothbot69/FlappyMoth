@@ -57,3 +57,54 @@ function update(dt){
 function glow(x,y,r,a){const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,`rgba(255,214,120,${a})`);gr.addColorStop(1,'rgba(255,214,120,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2)}
 function drawObs(o){
   const bcy=o.top-24;
+  g.globalCompositeOperation='lighter';glow(o.x,bcy,95,.45);glow(o.x,o.bot-6,80,.35);g.globalCompositeOperation='source-over';
+  g.strokeStyle='#2a2d3f';g.lineWidth=3;g.beginPath();g.moveTo(o.x,0);g.lineTo(o.x,bcy-32);g.stroke();
+  g.fillStyle='#3a3d52';g.fillRect(o.x-7,bcy-34,14,16);
+  g.fillStyle='#ffe9a8';g.beginPath();g.arc(o.x,bcy,20,0,7);g.fill();
+  g.fillStyle='#fff8dc';g.beginPath();g.arc(o.x-5,bcy-5,8,0,7);g.fill();
+  g.fillStyle='#2a2d3f';g.fillRect(o.x-4,o.bot+40,8,FLOOR-o.bot-40);
+  g.beginPath();g.ellipse(o.x,FLOOR,24,6,0,0,7);g.fill();
+  g.fillStyle='#ffd877';g.beginPath();g.moveTo(o.x-17,o.bot);g.lineTo(o.x+17,o.bot);g.lineTo(o.x+30,o.bot+40);g.lineTo(o.x-30,o.bot+40);g.fill();
+  g.fillStyle='#fff2c0';g.beginPath();g.ellipse(o.x,o.bot,17,4,0,0,7);g.fill();
+}
+function drawMoth(){
+  g.save();g.translate(m.x,m.y);g.rotate(m.rot);
+  const f=state==='over'?0:Math.sin(t*(m.vy<0?.9:.5))*.7;
+  g.fillStyle='#9aa0ad';
+  g.save();g.rotate(-.5+f*.8);g.beginPath();g.ellipse(-4,-10,7,14,-.3,0,7);g.fill();g.restore();
+  g.fillStyle='#b9beca';
+  g.save();g.rotate(.3-f*.6);g.beginPath();g.ellipse(-9,-2,14,8,.2,0,7);g.fill();g.restore();
+  g.fillStyle='#6c7280';g.beginPath();g.ellipse(2,2,9,5.5,0,0,7);g.fill();
+  g.beginPath();g.arc(10,0,4,0,7);g.fill();
+  g.strokeStyle='#8b91a0';g.lineWidth=1.3;g.beginPath();g.moveTo(12,-2);g.quadraticCurveTo(18,-9,22,-8);g.moveTo(12,-1);g.quadraticCurveTo(19,-5,23,-3);g.stroke();
+  g.fillStyle='#fff';g.fillRect(11,-1.5,1.6,1.6);
+  g.restore();
+}
+function txt(s,x,y,sz,col='#fff3cf',a='center'){g.font=`${sz}px ${F}`;g.textAlign=a;g.fillStyle=col;g.fillText(s,x,y)}
+function draw(){
+  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#070914');bg.addColorStop(1,'#1b1a33');
+  g.fillStyle=bg;g.fillRect(0,0,W,H);
+  g.fillStyle='#cfd6ff';stars.forEach(s=>{g.globalAlpha=.4+.3*Math.sin(t*.03+s.x);g.fillRect(s.x,s.y,s.r,s.r)});g.globalAlpha=1;
+  obs.forEach(drawObs);
+  g.fillStyle='#14142a';g.fillRect(0,FLOOR,W,H-FLOOR);
+  drawMoth();
+  if(state==='play')txt(score,W/2,70,48);
+  if(state==='ready'){
+    txt('Moth Flap',W/2,170,46);
+    txt('tap, click or press space to flutter',W/2,205,16,'#c9c2a8');
+    txt('stay out of the lamps',W/2,230,16,'#c9c2a8');
+    if(best)txt('best '+best,W/2,H-50,18,'#c9c2a8');
+  }
+  if(state==='over'){
+    g.fillStyle='rgba(5,6,16,.62)';g.fillRect(0,0,W,H);
+    txt('Too close to the light',W/2,215,30);
+    txt(score,W/2,290,64,'#ffd877');
+    txt('best '+best,W/2,325,20,'#c9c2a8');
+    txt('tap to try again',W/2,390,18);
+  }
+}
+function loop(ts){const dt=Math.min((ts-(last||ts))/16.667,2.5);last=ts;update(dt);draw();requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
